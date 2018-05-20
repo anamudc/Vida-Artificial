@@ -3,7 +3,6 @@ package boids2.src;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.geom.Ellipse2D;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -43,6 +42,7 @@ public class BoidsAnimation extends JComponent implements Runnable {
     static int maxCloseness = 30; //separation
     static int nbAlignment = 200;
     static int nbCohesion = 170;
+    static int nbFood = 170;
     static int width = 1200;
     static int height = 700;
     static int birdRadius = 10;
@@ -83,7 +83,7 @@ public class BoidsAnimation extends JComponent implements Runnable {
     @Override
     public void run() {
         try {
-            System.out.println("hilo " + Thread.currentThread().getId());
+//            System.out.println("hilo " + Thread.currentThread().getId());
             while (true) {
                 synchronized (birds) {
 //                    System.out.println("hilo dos " + Thread.currentThread().getId());
@@ -103,7 +103,7 @@ public class BoidsAnimation extends JComponent implements Runnable {
                         b.calculatePosition(this.width, this.height, birds,
                                 seperationParameter, alignmentParameter, cohesionParameter,
                                 maxVelocity, maxCloseness, nbAlignment, nbCohesion,
-                                obstacles, predators);
+                                obstacles, predators,foods,nbFood);
                         overlapFood((int)b.getX(), (int)b.getY(), b.radius);
                         b = null;
                     }
@@ -143,6 +143,30 @@ public class BoidsAnimation extends JComponent implements Runnable {
     public void paint(Graphics g) {
 
         Graphics2D g2D = (Graphics2D) g;
+        pintarComida(g2D);
+        pintarAves(g2D);
+        pintarPredadores(g2D);
+        pintarPlantas(g);
+    }
+
+    //Sección de pintar dividido por elelmento
+    
+    public void pintarAves(Graphics2D g2D){
+        //sección aves
+        synchronized (birds) {
+            Iterator<Bird> iterator = birds.iterator();
+            while (iterator.hasNext()) {
+                Bird b = iterator.next();
+                Double dy = b.position.get(1);
+                Double dx = b.position.get(0);
+                Integer x = dx.intValue();
+                Integer y = dy.intValue();
+                b.tiempoVida--;
+                g2D.drawImage(b.imagen.getImage(), x, y, this);
+            }
+        }
+    }
+    public void pintarComida(Graphics2D g2D){
         ejecuciones++;
 //        System.out.println("hilo paint " + Thread.currentThread().getId());
         /*Seccion Comida*/
@@ -150,8 +174,6 @@ public class BoidsAnimation extends JComponent implements Runnable {
             Iterator<Food> iterator = foods.iterator();
             while (iterator.hasNext()) {
                 Food f = iterator.next();
-//            System.out.println("tamaño ar aux food: " + arregloAuxFood.size());
-//            System.out.println("tamaño ar     food: " + foods.size());
                 if (f.tiempoVida <= 0) {
 //                    System.out.println("tiempoVida: " + f.tiempoVida);
                     iterator.remove();
@@ -162,7 +184,6 @@ public class BoidsAnimation extends JComponent implements Runnable {
             Iterator<Food> iterator = foods.iterator();
             while (iterator.hasNext()) {
                 Food f = iterator.next();
-//            f.sandPile(4, foods, 4);
 //            System.out.println("tamaño: " + f.getTamaño() + " c " + f.c + " position: " + f.position);
                 Double dy = f.position.get(1);
                 Double dx = f.position.get(0);
@@ -191,32 +212,8 @@ public class BoidsAnimation extends JComponent implements Runnable {
 
         Food f = new Food(4, v, Color.YELLOW);
         foods.add(f);
-//        arregloAuxFood.add(f);
-//        System.out.println("comida agregada1: " + f.name + " correcto: " + foods.contains(f) + " cantidad:" + foods.size());
-//        System.out.println("comida agregada2: " + f.name + " correcto: " + arregloAuxFood.contains(f) + " cantidad:" + arregloAuxFood.size());
-
-        //sección aves
-        synchronized (birds) {
-            Iterator<Bird> iterator = birds.iterator();
-            while (iterator.hasNext()) {
-                Bird b = iterator.next();
-                Double dy = b.position.get(1);
-                Double dx = b.position.get(0);
-                Integer x = dx.intValue();
-                Integer y = dy.intValue();
-                b.tiempoVida--;
-                g2D.drawImage(b.imagen.getImage(), x, y, this);
-            }
-        }
-        synchronized (obstacles) {
-            for (Obstacle o : obstacles) {
-                Ellipse2D.Double myCircle = new Ellipse2D.Double(o.getX() - o.radius, o.getY() - o.radius, 2 * o.radius, 2 * o.radius);
-                g2D.setPaint(o.color);
-                g2D.fill(myCircle);
-                g2D.setPaint(Color.BLACK);
-                g2D.draw(myCircle);
-            }
-        }
+    }
+    public void pintarPredadores(Graphics2D g2D){
         //seccion depredadores
         synchronized (predators) {
             Iterator<Predator> iterator = predators.iterator();
@@ -230,6 +227,8 @@ public class BoidsAnimation extends JComponent implements Runnable {
                 g2D.drawImage(p.imagen.getImage(), x, y, this);
             }
         }
+    }
+    public void pintarPlantas(Graphics g){
         /*Seccion L-System*/
  /*Seccion planta 1*/
         String aux = "";
@@ -293,7 +292,8 @@ public class BoidsAnimation extends JComponent implements Runnable {
         g.setColor(Color.RED);
 
     }
-
+    
+    
     public static void generatePredator() {
         Random random = new Random();
         int x, y;

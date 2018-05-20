@@ -43,20 +43,4 @@ public class Food extends AnimationObject {
         }
     }
 
-//    public void sandPile(int tamañoMax, ArrayList<Food> neighbours, int kNeighboursAl) {
-//        this.tamaño++;
-//        if (this.tamaño > tamañoMax) {
-//            this.tamaño = 0;
-//            for (Food b : neighbours) {
-//                if (!b.equals(this)) {
-//                    double d = distance(b.position, this.position);
-//                    if (d < kNeighboursAl && d > 0) {
-//                        c++;
-//                        b.sandPile(tamañoMax, neighbours, kNeighboursAl);
-//                    }
-//                }
-//            }
-//        }
-//    }
-
 }
