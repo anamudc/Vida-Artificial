@@ -3,7 +3,8 @@ package boids2.src;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.List;
+import java.util.List;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,10 +34,10 @@ public class Bird extends AnimationObject {
     }
 
     @Override
-    public void calculatePosition(int width, int height, ArrayList<Bird> neighbours,
+    public void calculatePosition(int width, int height, List<Bird> neighbours,
             double sepParam, double alParam, double cohParam, int maxVelocity, int maxCloseness,
-            int kNeighboursAl, int kNeighboursCoh, ArrayList<Obstacle> obstacles,
-            ArrayList<Predator> predators) {
+            int kNeighboursAl, int kNeighboursCoh, List<Obstacle> obstacles,
+            List<Predator> predators) {
 
         this.width = width;
         this.height = height;
@@ -65,7 +66,7 @@ public class Bird extends AnimationObject {
 
     }
 
-    private Vector<Double> avoidPredators(ArrayList<Predator> predators) {
+    private Vector<Double> avoidPredators(List<Predator> predators) {
         Vector<Double> v = init();
         int i = 0;
         for (Predator p : predators) {

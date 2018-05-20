@@ -1,7 +1,7 @@
 package boids2.src;
 
 import java.awt.Color;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.Vector;
 import javax.swing.ImageIcon;
@@ -32,7 +32,7 @@ public abstract class AnimationObject {
         return position.get(1);
     }
 
-    Vector<Double> separate(ArrayList<Bird> neighbours, int max) {
+    Vector<Double> separate(List<Bird> neighbours, int max) {
         Vector<Double> s = init();
         int i = 0;
         for (Bird b : neighbours) {
@@ -50,7 +50,7 @@ public abstract class AnimationObject {
         return s;
     }
 
-    Vector<Double> separatePredators(ArrayList<Predator> neighbours, int max) {
+    Vector<Double> separatePredators(List<Predator> neighbours, int max) {
         Vector<Double> s = init();
         int i = 0;
         for (Predator b : neighbours) {
@@ -68,7 +68,7 @@ public abstract class AnimationObject {
         return s;
     }
 
-    Vector<Double> align(ArrayList<Bird> neighbours, int k) {
+    Vector<Double> align(List<Bird> neighbours, int k) {
         Vector<Double> c = init();
         int i = 0;
         for (Bird b : neighbours) {
@@ -87,7 +87,7 @@ public abstract class AnimationObject {
         return c;
     }
 
-    Vector<Double> cohesion(ArrayList<Bird> neighbours, int k) {
+    Vector<Double> cohesion(List<Bird> neighbours, int k) {
         Vector<Double> a = init();
         int i = 0;
         for (Bird b : neighbours) {
@@ -134,7 +134,7 @@ public abstract class AnimationObject {
         }
     }
 
-    Vector<Double> avoidObstacles(ArrayList<Obstacle> obstacles) {
+    Vector<Double> avoidObstacles(List<Obstacle> obstacles) {
         Vector<Double> v = init();
         int i = 0;
         Vector<Double> newPosition = add(position, velocity);
@@ -263,9 +263,9 @@ public abstract class AnimationObject {
         return v;
     }
 
-    public void calculatePosition(int width, int height, ArrayList<Bird> neighbours, double sepParam, double alParam,
+    public void calculatePosition(int width, int height, List<Bird> neighbours, double sepParam, double alParam,
             double cohParam, int maxVelocity, int maxCloseness, int kNeighboursAl, int kNeighboursCoh,
-            ArrayList<Obstacle> obstacles, ArrayList<Predator> predators) {
+            List<Obstacle> obstacles, List<Predator> predators) {
         // TODO Auto-generated method stub
 
     }

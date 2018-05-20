@@ -1,6 +1,5 @@
 package boids2.src;
 
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -14,6 +13,8 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 import java.util.Vector;
 import javax.swing.JComponent;
@@ -22,63 +23,16 @@ import sandpile.ProyectoArena;
 
 public class BoidsAnimation extends JComponent implements Runnable {
 
-    public BoidsAnimation() {
-        birds = new ArrayList<Bird>();
-        obstacles = new ArrayList<Obstacle>();
-        predators = new ArrayList<Predator>();
-        Random random = new Random();
-        for (int i = 0; i < numberOfBirds; i++) {
-            Bird b = new Bird(random.nextInt(width), random.nextInt(height), birdRadius);
-            //Bird b = new Bird(width/2, height/2, birdRadius);
-            birds.add(b);
-        }
-
-        Predator p = new Predator(random.nextInt(width), random.nextInt(height), birdRadius * 2);
-        Predator p2 = new Predator(random.nextInt(width), random.nextInt(height), birdRadius * 2);
-
-        predators.add(p);
-        predators.add(p2);
-
-        foods = new ArrayList<Food>();
-
-        Vector<Double> v = new Vector<Double>();
-        v.add((double) width / 2);
-        v.add((double) height / 2);
-        Food f = new Food(4, v, Color.YELLOW);
-
-        foods.add(f);
-
-        for (Bird bs : birds) {
-            Bird ba = new Bird(1, 1,1);
-            ba=bs;
-            arregloAuxBirds.add(ba);
-        }
-        for (Food fs : foods) {
-            Food fa = new Food(1, v, Color.BLACK);
-            fa=fs;
-            arregloAuxFood.add(fa);
-        }
-        for (Predator ps : predators) {
-            Predator pa = new Predator(1, 1,1);
-            pa=ps;
-            arregloAuxPredator.add(pa);
-        }
-
-        Thread t = new Thread(this);
-        t.start();
-
-    }
-
     static int animationSpeed = 7;
 
     static int numberOfBirds = 50;
     static int numberOfPredators = 3;
     static int numberOfObstacles = 5;
 
-    static ArrayList<Bird> birds;
-    static ArrayList<Predator> predators;
-    static ArrayList<Obstacle> obstacles;
-    static ArrayList<Food> foods;
+    static List<Bird> birds;
+    static List<Predator> predators;
+    static List<Obstacle> obstacles;
+    static List<Food> foods;
 
     static double seperationParameter = 1.0;
     static double alignmentParameter = 1.0;
@@ -95,67 +49,187 @@ public class BoidsAnimation extends JComponent implements Runnable {
 
     ProyectoArena pr = new ProyectoArena(width, height);
     int ejecuciones = 0;
-    static ArrayList<Bird> arregloAuxBirds = new ArrayList<Bird>();
-    static ArrayList<Predator> arregloAuxPredator = new ArrayList<Predator>();
-    static ArrayList<Food> arregloAuxFood = new ArrayList<Food>();
+//    static ArrayList<Bird> arregloAuxBirds = new ArrayList<Bird>();
+//    static ArrayList<Predator> arregloAuxPredator = new ArrayList<Predator>();
+
+    public BoidsAnimation() {
+        birds = Collections.synchronizedList(new ArrayList<Bird>());
+        obstacles = Collections.synchronizedList(new ArrayList<Obstacle>());
+        predators = Collections.synchronizedList(new ArrayList<Predator>());
+        foods = Collections.synchronizedList(new ArrayList<Food>());
+
+        Random random = new Random();
+        for (int i = 0; i < numberOfBirds; i++) {
+            Bird b = new Bird(random.nextInt(width), random.nextInt(height), birdRadius);
+            //Bird b = new Bird(width/2, height/2, birdRadius);
+            birds.add(b);
+        }
+
+        Predator p = new Predator(random.nextInt(width), random.nextInt(height), birdRadius * 2);
+        Predator p2 = new Predator(random.nextInt(width), random.nextInt(height), birdRadius * 2);
+        predators.add(p);
+        predators.add(p2);
+
+        Vector<Double> v = new Vector<Double>();
+        v.add((double) width / 2);
+        v.add((double) height / 2);
+        Food f = new Food(4, v, Color.YELLOW);
+        foods.add(f);
+
+        Thread t = new Thread(this);
+        t.start();
+    }
 
     @Override
     public void run() {
-        // TODO Auto-generated method stub
         try {
+            System.out.println("hilo " + Thread.currentThread().getId());
             while (true) {
-                for (Bird b : arregloAuxBirds) {
-                    if (b.tiempoVida <= 0) {
-                        birds.remove(b);
+                synchronized (birds) {
+//                    System.out.println("hilo dos " + Thread.currentThread().getId());
+                    Iterator<Bird> iterator = birds.iterator();
+                    while (iterator.hasNext()) {
+                        Bird b = iterator.next();
+                        if (b.tiempoVida <= 0) {
+                            iterator.remove();
+                        }
                     }
                 }
-                for (Bird b : birds) {
-                    b.calculatePosition(this.width, this.height, birds,
-                            seperationParameter, alignmentParameter, cohesionParameter,
-                            maxVelocity, maxCloseness, nbAlignment, nbCohesion,
-                            obstacles, predators);
-                    overlapFood(b.width, b.height, b.radius);
-                }
-                for (Predator p : arregloAuxPredator) {
-                    if (p.tiempoVida <= 0) {
-                        predators.remove(p);
+                synchronized (birds) {
+                    Iterator<Bird> iterator = birds.iterator();
+                    while (iterator.hasNext()) {
+                        Bird b = iterator.next();
+//                        System.out.println("posicion x:"+(int)b.getX()+" y:"+(int)b.getY());
+                        b.calculatePosition(this.width, this.height, birds,
+                                seperationParameter, alignmentParameter, cohesionParameter,
+                                maxVelocity, maxCloseness, nbAlignment, nbCohesion,
+                                obstacles, predators);
+                        overlapFood((int)b.getX(), (int)b.getY(), b.radius);
+                        b = null;
                     }
                 }
-                for (Predator p : predators) {
-                    p.calculatePosition(width, height, birds,
-                            seperationParameter, alignmentParameter, cohesionParameter,
-                            maxVelocityPredators, maxCloseness, nbAlignment, nbCohesion,
-                            obstacles, predators);
-                    overlap(p.width, p.height, p.radius);
+                synchronized (predators) {
+                    Iterator<Predator> iterator = predators.iterator();
+                    while (iterator.hasNext()) {
+                        Predator p = iterator.next();
+                        if (p.tiempoVida <= 0) {
+                            iterator.remove();
+                        }
+                    }
+                }
+                synchronized (predators) {
+                    Iterator<Predator> iterator = predators.iterator();
+                    while (iterator.hasNext()) {
+                        Predator p = iterator.next();
+                        p.calculatePosition(width, height, birds,
+                                seperationParameter, alignmentParameter, cohesionParameter,
+                                maxVelocityPredators, maxCloseness, nbAlignment, nbCohesion,
+                                obstacles, predators);
+                        overlap((int) p.getX(), (int) p.getY(), p.radius);
+                    }
                 }
 
-//                for (Food f : foods) {
-//                    f.sandPile(4, foods, 4);
-//
-//                    System.out.println("tamaño: " + f.getTamaño() + " c " + f.c);
-//                }
-//                Food f = new Food(4, new Vector((int)(width/2 * Math.random()), (int)(height/2 *Math.random())), Color.YELLOW);
-//                Vector v = new Vector();
-//                v.add((int) Math.random()*width/2);
-//                v.add((int) Math.random()*height/2);
-//
-//                Food f = new Food(4, v, Color.YELLOW);
-//                foods.add(f);
-                repaint();
                 Thread.sleep(1000 / (5 * animationSpeed + 1));
+                repaint();
 
             }
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+
     }
 
     public void paint(Graphics g) {
 
         Graphics2D g2D = (Graphics2D) g;
         ejecuciones++;
+//        System.out.println("hilo paint " + Thread.currentThread().getId());
+        /*Seccion Comida*/
+        synchronized (foods) {
+            Iterator<Food> iterator = foods.iterator();
+            while (iterator.hasNext()) {
+                Food f = iterator.next();
+//            System.out.println("tamaño ar aux food: " + arregloAuxFood.size());
+//            System.out.println("tamaño ar     food: " + foods.size());
+                if (f.tiempoVida <= 0) {
+//                    System.out.println("tiempoVida: " + f.tiempoVida);
+                    iterator.remove();
+                }
+            }
+        }
+        synchronized (foods) {
+            Iterator<Food> iterator = foods.iterator();
+            while (iterator.hasNext()) {
+                Food f = iterator.next();
+//            f.sandPile(4, foods, 4);
+//            System.out.println("tamaño: " + f.getTamaño() + " c " + f.c + " position: " + f.position);
+                Double dy = f.position.get(1);
+                Double dx = f.position.get(0);
+                Integer x = dx.intValue();
+                Integer y = dy.intValue();
+                f.tiempoVida--;
+                g2D.drawImage(f.imagen.getImage(), x, y, this);
+            }
+        }
+        Vector<Double> v = new Vector<Double>();
 
+//        System.out.println("ejecuciones: " + ejecuciones);
+        if (ejecuciones < 500) {
+            v.add((double) width * Math.random() / 2);
+            v.add((double) Math.random() * height / 2);
+//            System.out.println("if arriba x: " + v.get(0) + " y: " + v.get(1));
+        }
+        if (ejecuciones >= 500 && ejecuciones <= 1000) {
+            v.add((double) (width * Math.random() / 2) + (width / 2));
+            v.add((double) (Math.random() * height / 2) + (height / 2));
+//            System.out.println("if abajo x: " + v.get(0) + " y: " + v.get(1));
+            if (ejecuciones == 1000) {
+                ejecuciones = 0;
+            }
+        }
+
+        Food f = new Food(4, v, Color.YELLOW);
+        foods.add(f);
+//        arregloAuxFood.add(f);
+//        System.out.println("comida agregada1: " + f.name + " correcto: " + foods.contains(f) + " cantidad:" + foods.size());
+//        System.out.println("comida agregada2: " + f.name + " correcto: " + arregloAuxFood.contains(f) + " cantidad:" + arregloAuxFood.size());
+
+        //sección aves
+        synchronized (birds) {
+            Iterator<Bird> iterator = birds.iterator();
+            while (iterator.hasNext()) {
+                Bird b = iterator.next();
+                Double dy = b.position.get(1);
+                Double dx = b.position.get(0);
+                Integer x = dx.intValue();
+                Integer y = dy.intValue();
+                b.tiempoVida--;
+                g2D.drawImage(b.imagen.getImage(), x, y, this);
+            }
+        }
+        synchronized (obstacles) {
+            for (Obstacle o : obstacles) {
+                Ellipse2D.Double myCircle = new Ellipse2D.Double(o.getX() - o.radius, o.getY() - o.radius, 2 * o.radius, 2 * o.radius);
+                g2D.setPaint(o.color);
+                g2D.fill(myCircle);
+                g2D.setPaint(Color.BLACK);
+                g2D.draw(myCircle);
+            }
+        }
+        //seccion depredadores
+        synchronized (predators) {
+            Iterator<Predator> iterator = predators.iterator();
+            while (iterator.hasNext()) {
+                Predator p = iterator.next();
+                Double dy = p.position.get(1);
+                Double dx = p.position.get(0);
+                Integer x = dx.intValue();
+                Integer y = dy.intValue();
+                p.tiempoVida--;
+                g2D.drawImage(p.imagen.getImage(), x, y, this);
+            }
+        }
         /*Seccion L-System*/
  /*Seccion planta 1*/
         String aux = "";
@@ -167,7 +241,7 @@ public class BoidsAnimation extends JComponent implements Runnable {
         for (int j = 0; j < iteraciones; j++) {
             res = sys.GenerarRama(res);
         }
-        System.out.println(res);
+//        System.out.println(res);
         String axiomaTurtle = res;
 
         Planta1 ti = new Planta1();
@@ -188,7 +262,6 @@ public class BoidsAnimation extends JComponent implements Runnable {
             ti.distacia = (int) (5 + (Math.random() * 2));
             ti.delta = (int) (27 + (Math.random() * 4));
         }
-        System.out.println("fin");
 
         /*Seccion planta 2*/
         String aux2 = "";
@@ -199,7 +272,7 @@ public class BoidsAnimation extends JComponent implements Runnable {
         for (int j = 0; j < iteraciones2; j++) {
             res2 = sys2.GenerarRama3(res2);
         }
-        System.out.println(res2);
+//        System.out.println(res2);
         String axiomaTurtle2 = res2;
         Planta1 ti2 = new Planta1();
         ti2.n = 500;
@@ -217,77 +290,8 @@ public class BoidsAnimation extends JComponent implements Runnable {
             ti2.distacia = (int) (2 + (Math.random() * 2));
             ti2.delta = (int) (26 + (Math.random() * 4));
         }
-        System.out.println("fin");
         g.setColor(Color.RED);
 
-        /*Seccion Comida*/
-        for (Food f : foods) {
-            f.sandPile(4, foods, 4);
-
-//            System.out.println("tamaño: " + f.getTamaño() + " c " + f.c + " position: " + f.position);
-            Double dy = f.position.get(1);
-            Double dx = f.position.get(0);
-            Integer x = dx.intValue();
-            Integer y = dy.intValue();
-//            AffineTransform tx4 = AffineTransform.getShearInstance(Math.pow(Math.E,f.radius), Math.pow(f.radius, 2));
-            g2D.drawImage(f.imagen.getImage(), x, y, this);
-        }
-
-        Vector<Double> v = new Vector<Double>();
-
-        System.out.println("ejecuciones: " + ejecuciones);
-        if (ejecuciones < 500) {
-            v.add((double) width * Math.random() / 2);
-            v.add((double) Math.random() * height / 2);
-            System.out.println("if arriba x: " + v.get(0) + " y: " + v.get(1));
-        }
-        if (ejecuciones >= 500 && ejecuciones <= 1000) {
-            v.add((double) (width * Math.random() / 2) + (width / 2));
-            v.add((double) (Math.random() * height / 2) + (height / 2));
-            System.out.println("if abajo x: " + v.get(0) + " y: " + v.get(1));
-            if (ejecuciones == 1000) {
-                ejecuciones = 0;
-            }
-        }
-
-        Food f = new Food(4, v, Color.YELLOW);
-        foods.add(f);
-
-        for (Bird b : birds) {
-            Double dy = b.position.get(1);
-            Double dx = b.position.get(0);
-            Integer x = dx.intValue();
-            Integer y = dy.intValue();
-            b.tiempoVida--;
-//            AffineTransform tx4 = AffineTransform.getShearInstance(Math.pow(Math.E,f.radius), Math.pow(f.radius, 2));
-            g2D.drawImage(b.imagen.getImage(), x, y, this);
-        }
-        for (Obstacle o : obstacles) {
-            Ellipse2D.Double myCircle = new Ellipse2D.Double(o.getX() - o.radius, o.getY() - o.radius, 2 * o.radius, 2 * o.radius);
-            g2D.setPaint(o.color);
-            g2D.fill(myCircle);
-            g2D.setPaint(Color.BLACK);
-            g2D.draw(myCircle);
-        }
-
-        for (Predator p : predators) {
-            Double dy = p.position.get(1);
-            Double dx = p.position.get(0);
-            Integer x = dx.intValue();
-            Integer y = dy.intValue();
-            p.tiempoVida--;//            AffineTransform tx4 = AffineTransform.getRotateInstance();
-            double ang = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
-
-//            Double dw = p.align(birds, (int)alignmentParameter).get(1);
-//            Double dz = p.align(birds, (int)alignmentParameter).get(0);
-//            Integer w = dx.intValue();
-//            Integer z = dy.intValue();
-//            
-//            double ang2= Math.sqrt(Math.pow(w,2)+Math.pow(z,2));
-//            double angulo= Math.acos(10/(ang*ang2));
-//            AffineTransform tx4 = AffineTransform.getRotateInstance(angulo);
-            g2D.drawImage(p.imagen.getImage(), x, y, this);
-        }
     }
 
     public static void generatePredator() {
@@ -332,14 +336,19 @@ public class BoidsAnimation extends JComponent implements Runnable {
                 return true;
             }
         }
-        for (Bird o : birds) {
-            int dist = (int) (Math.sqrt(Math.pow(x - o.getX(), 2) + Math.pow(y - o.getY(), 2)));
-            if (dist >= Math.abs(size - o.radius) && dist <= Math.abs(size + o.radius)) {
-                //eliminar el boid o
-                System.out.println("o: " + o.color + " if birds ");
-                birds.remove(o);
-                System.out.println("birds.size: " + birds.size());
-                return true;
+        synchronized (foods) {
+            Iterator<Bird> iterator = birds.iterator();
+
+            while (iterator.hasNext()) {
+                Bird o = iterator.next();
+                int dist = (int) (Math.sqrt(Math.pow(x - o.getX(), 2) + Math.pow(y - o.getY(), 2)));
+                if (dist >= Math.abs(size - o.radius) && dist <= Math.abs(size + o.radius)) {
+                    //eliminar el boid o
+//                    System.out.println("o: " + o.color + " if birds ");
+                    iterator.remove();
+//                    System.out.println("birds.size: " + birds.size());
+                    return true;
+                }
             }
         }
         return false;
@@ -348,16 +357,24 @@ public class BoidsAnimation extends JComponent implements Runnable {
     private static boolean overlapFood(int a, int b, int s) {
         double x = (double) a;
         double y = (double) b;
-        double size = (double) s;
+        double size = (double) 20;
 
-        for (Food f : arregloAuxFood) {
-            int dist = (int) (Math.sqrt(Math.pow(x - f.getX(), 2) + Math.pow(y - f.getY(), 2)));
-            if (dist >= Math.abs(size - f.radius) && dist <= Math.abs(size + f.radius)) {
-                //eliminar el boid o
-                System.out.println("f: " + f.color + " if foods ");
-                foods.remove(f);
-                System.out.println("if overlaf foods.size: " + foods.size());
-                return true;
+        synchronized (foods) {
+            Iterator<Food> iterator = foods.iterator();
+            while (iterator.hasNext()) {
+                Food f = iterator.next();
+                
+//                System.out.println("fx: " + f.getX() + " fy:"+f.getY());
+                int dist = (int) (Math.sqrt(Math.pow(x - f.getX(), 2) + Math.pow(y - f.getY(), 2)));
+                double condicion1 = Math.abs(size - f.radius);
+
+//                System.out.println("d:"+dist+ " cC1: " + condicion1 );
+                if (dist <= condicion1) {
+                    //eliminar la comida
+                    iterator.remove();
+//                    System.out.println("if overlaf foods.size: " + foods.size());
+                    return true;
+                }
             }
         }
         return false;

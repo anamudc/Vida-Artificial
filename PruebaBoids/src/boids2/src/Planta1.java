@@ -52,7 +52,7 @@ public class Planta1 {
 
     public void moverTurtle(String axioma) {
         matriz[turtle.xPosition][turtle.yPosition]=-1;
-        System.out.println(" x= " + turtle.xPosition + "  y= " + turtle.yPosition + " a= " + turtle.angle);
+//        System.out.println(" x= " + turtle.xPosition + "  y= " + turtle.yPosition + " a= " + turtle.angle);
         for (int i = 0; i < axioma.length(); i++) {
             aux = axioma.substring(i, i + 1);
             turtle = siguientePaso(aux, turtle, distacia, delta);
@@ -98,7 +98,7 @@ public class Planta1 {
         for (int j=0;j<iteraciones;j++){
             res = sys.GenerarRama(res);
         }
-        System.out.println(res);
+//        System.out.println(res);
         String axiomaTurtle = res;
         
         Planta1 ti = new Planta1();

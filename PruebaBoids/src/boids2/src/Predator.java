@@ -3,7 +3,7 @@ package boids2.src;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,9 +32,9 @@ public class Predator extends AnimationObject {
     }
 
     @Override
-    public void calculatePosition(int width, int height, ArrayList<Bird> neighbours, double sepParam, double alParam,
+    public void calculatePosition(int width, int height, List<Bird> neighbours, double sepParam, double alParam,
             double cohParam, int maxVelocity, int maxCloseness, int kNeighboursAl, int kNeighboursCoh,
-            ArrayList<Obstacle> obstacles, ArrayList<Predator> predators) {
+            List<Obstacle> obstacles, List<Predator> predators) {
         // TODO Auto-generated method stub
 
         Vector<Double> s = separatePredators(predators, maxCloseness + 50);
