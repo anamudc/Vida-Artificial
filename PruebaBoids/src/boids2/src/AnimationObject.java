@@ -8,7 +8,7 @@ import javax.swing.ImageIcon;
 
 public abstract class AnimationObject {
 
-    Color color;
+    int color;
     int radius;
     Vector<Double> position;
 

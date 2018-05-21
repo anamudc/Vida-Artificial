@@ -1,37 +1,36 @@
 package boids2.src;
 
-import java.awt.Color;
 import java.io.File;
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
-import java.util.List;
 import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 
 public class Bird extends AnimationObject {
 
+    String ruta = "imgs/";
     File imageFile;
 
-    public Bird(int x, int y, int radius) {
-        tiempoVida = (int) (Math.random() * 800);
+    int amplitud;
+    int verticesLimit;
+    int iterTuringMorph;
+    int id;
 
-        this.color = Color.BLUE;
+    public Bird(int x, int y, int radius, int id) {
+        this.id = id;
+        name = ruta + "true" + id+".png";
+        //codigo
+        tiempoVida = (int) (Math.random() * 800);
+        this.color = (int) (1 + Math.random() * 5);
+        amplitud = (int) (5 + Math.random() * 10);
+        verticesLimit = (int) (2 + Math.random() * 4);
+        iterTuringMorph = (int) (2000 + Math.random() * 3000);
+
+        Transform transformacion = new Transform();
+        imagen = transformacion.cambioPiel("raton.png", "turingmorph3.png", "transparente.png", verticesLimit, amplitud, iterTuringMorph, this.color, true, this.id);
         this.radius = radius;
         velocity = init();
         position = init(x, y);
         obstacle = false;
-        try {
-            name = "nuevoRaton.png";
-            imagen = new ImageIcon("" + name);
-            File imageFile = new File("" + name);
-            imagen.setImage(ImageIO.read(getClass().getResourceAsStream(imageFile.toString())));
-        } catch (IOException ex) {
-            Logger.getLogger(Food.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
 
     public void calculatePosition(int width, int height, List<Bird> neighbours,
@@ -53,7 +52,6 @@ public class Bird extends AnimationObject {
         p = multiply(p, 1);
         f = multiply(f, 7.0);
 
-        this.color = Color.blue;
         this.velocity = add(this.velocity, s, a, c);
         this.velocity = add(this.velocity, p);
 

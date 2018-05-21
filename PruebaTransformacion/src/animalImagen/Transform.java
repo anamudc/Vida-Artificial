@@ -39,8 +39,12 @@ public class Transform {
     int parametro1; //es el divisor que define los limites donde estarán los vertices de las parabolas
     int parametro2; //el valor que define la variación de la amplitud de las parabolas
     int parametro3; //numero de iteraciones para el turingmorph
+    int parametro4; //valor entre 1 y 6 para definir el color del turing morph
+    boolean parametro5; //tipo de animal (gato o ratón)
+    int parametro6; //numero de animal a crear (numeracion de animales)
 
-    public void cambioPiel(String imgAnimal, String imgPiel, String imgBase, int pVertices, int pAmplitud, int iteracionesMorph) {
+    public void cambioPiel(String imgAnimal, String imgPiel, String imgBase,
+            int pVertices, int pAmplitud, int iteracionesMorph, int colorMorph, boolean tipoRaton, int numeroAnimal) {
         String ruta = "imgs/";
 
         try {
@@ -52,6 +56,13 @@ public class Transform {
             parametro1 = pVertices;
             parametro2 = pAmplitud;
             parametro3 = iteracionesMorph;
+            parametro4 = colorMorph;
+            if (tipoRaton) {
+                parametro5 = true;
+            } else {
+                parametro5 = false;
+            }
+            parametro6 = numeroAnimal;
 
             File imageFile = new File(ruta + imgAnimal);
             File imageFile2 = new File(ruta + imgPiel);
@@ -63,9 +74,9 @@ public class Transform {
                 pixelesLargo = icono.getIconWidth();
 
                 if (pixelesAlto > pixelesLargo) {
-                    Solver solver2 = new Solver(pixelesAlto, pixelesAlto, parametro3, 1, imgPiel);
+                    Solver solver2 = new Solver(pixelesAlto, pixelesAlto, parametro3, parametro4, imgPiel);
                 } else {
-                    Solver solver2 = new Solver(pixelesLargo, pixelesLargo, parametro3, 1, imgPiel);
+                    Solver solver2 = new Solver(pixelesLargo, pixelesLargo, parametro3, parametro4, imgPiel);
                 }
                 icono2.setImage(ImageIO.read(ImageIO.createImageInputStream(imageFile2)));
 
@@ -78,16 +89,28 @@ public class Transform {
             BufferedImage bufferRaton = toBufferedImage(ImageIO.read(ImageIO.createImageInputStream(imageFile)));
             BufferedImage bufferTuring = toBufferedImage(ImageIO.read(ImageIO.createImageInputStream(imageFile2)));
 
+            int colorBase = 0;
+            if (parametro5) {
+                colorBase = 855638016;
+            } else {
+                colorBase = -251605446;
+            }
+
             for (int x = 0; x < pixelesLargo - 1; x++) {
                 for (int y = 0; y < pixelesAlto - 1; y++) {
                     int a = bufferRaton.getRGB(x, y);
                     int b = bufferTuring.getRGB(x, y);
                     int y2 = 0;
                     try {
-                        if (a == 855638016) {
+                        if (a == colorBase) {
                             bufferRaton.setRGB(x, y, b);
                         }
-                        y2 = CoordenadaY(x, y);
+                        if (parametro5) {
+                            y2 = CoordenadaY(x, y);
+                        }else{
+                            y2 = CoordenadaYGato(x, y);
+                        }
+
                         a = bufferRaton.getRGB(x, y);
                         bufferBase.setRGB(x, y2, a);
                     } catch (Exception e) {
@@ -97,7 +120,7 @@ public class Transform {
                 }
             }
 
-            ImageIO.write(bufferBase, "png", new File(ruta + "transformBase" + (int) (Math.random() * 10) + ".png"));
+            ImageIO.write(bufferBase, "png", new File(ruta + parametro5 + parametro6 + ".png"));
             System.out.println("done");
 
         } catch (IOException ex) {
@@ -113,13 +136,36 @@ public class Transform {
         }
 
         if (y > 0 && y < pixelesAlto / 2) {
-            nuevoY = (int) ((-(Math.pow((x - pixelesLargo / 2), 2) / (y * parametro2))) + (y / 2 + (pixelesAlto / parametro1)));
+            nuevoY = (int) ((-(Math.pow((x - pixelesLargo / 2), 2) / (y * parametro2))) + (y + (pixelesAlto / parametro1)));
         }
         if (y == pixelesAlto / 2) {
             nuevoY = y;
         }
         if (y > pixelesAlto / 2) {
-            nuevoY = (int) (((Math.pow((x - pixelesLargo / 2), 2) / ((pixelesAlto - y) * parametro2))) + (y / 2 + (pixelesAlto / parametro1)));
+            nuevoY = (int) (((Math.pow((x - pixelesLargo / 2), 2) / ((pixelesAlto - y) * parametro2))) + (y + (pixelesAlto / parametro1)));
+        }
+
+        if (nuevoY < 0 || nuevoY >= pixelesAlto || nuevoY >= pixelesLargo) {
+            nuevoY = 0;
+        }
+        return nuevoY;
+    }
+
+    public int CoordenadaYGato(int x, int y) {
+        int nuevoY = 0;
+
+        if (y == 0) {
+            return 0;
+        }
+
+        if (y > 0 && y < pixelesAlto / 2) {
+            nuevoY = (int) (((Math.pow((x - pixelesLargo / 2), 2) / ((pixelesAlto - y) * parametro2))) + (y + (pixelesAlto / parametro1)));
+        }
+        if (y == pixelesAlto / 2) {
+            nuevoY = y;
+        }
+        if (y > pixelesAlto / 2) {
+            nuevoY = (int) ((-(Math.pow((x - pixelesLargo / 2), 2) / (y * parametro2))) + (y + (pixelesAlto / parametro1)));
         }
 
         if (nuevoY < 0 || nuevoY >= pixelesAlto || nuevoY >= pixelesLargo) {

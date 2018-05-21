@@ -1,34 +1,36 @@
 package boids2.src;
 
-import java.awt.Color;
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 
 public class Predator extends AnimationObject {
 
+    String ruta = "imgs/";
     File imageFile;
+    
+    int amplitud;
+    int verticesLimit;
+    int iterTuringMorph;
+    int id;
 
-    public Predator(double x, double y, int maxVelocity) {
-        tiempoVida = (int)(Math.random()*1000);
+    public Predator(double x, double y, int maxVelocity, int id) {
+        this.id = id;
+        //codigo
+        tiempoVida = (int) (Math.random() * 800);        
+        this.color = (int)(1+Math.random()*5);
+        amplitud = (int)(5+Math.random()*10);
+        verticesLimit = (int)(2+Math.random()*4);
+        iterTuringMorph = (int)(2000+Math.random()*3000);
         
-        color = Color.red;
+        Transform transformacion = new Transform(); 
+        imagen = transformacion.cambioPiel("gato.png","turingmorph3.png","transparente.png",verticesLimit,amplitud,iterTuringMorph,this.color,false,this.id);
+            
+        name = ruta+"true"+id;
         radius = 15;
         position = init(x, y);
         velocity = randomVelocity(maxVelocity);
-        try {
-            name="nuevoGato.png";
-            imagen = new ImageIcon("" + name);
-            File imageFile = new File("" + name);
-            imagen.setImage(ImageIO.read(getClass().getResourceAsStream(imageFile.toString())));
-        } catch (IOException ex) {
-            Logger.getLogger(Food.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        
     }
 
     @Override

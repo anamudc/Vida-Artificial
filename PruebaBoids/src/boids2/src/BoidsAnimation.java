@@ -49,8 +49,6 @@ public class BoidsAnimation extends JComponent implements Runnable {
 
     ProyectoArena pr = new ProyectoArena(width, height);
     int ejecuciones = 0;
-//    static ArrayList<Bird> arregloAuxBirds = new ArrayList<Bird>();
-//    static ArrayList<Predator> arregloAuxPredator = new ArrayList<Predator>();
 
     public BoidsAnimation() {
         birds = Collections.synchronizedList(new ArrayList<Bird>());
@@ -58,22 +56,21 @@ public class BoidsAnimation extends JComponent implements Runnable {
         predators = Collections.synchronizedList(new ArrayList<Predator>());
         foods = Collections.synchronizedList(new ArrayList<Food>());
 
+        Transform transformacion = new Transform(); 
         Random random = new Random();
         for (int i = 0; i < numberOfBirds; i++) {
-            Bird b = new Bird(random.nextInt(width), random.nextInt(height), birdRadius);
-            //Bird b = new Bird(width/2, height/2, birdRadius);
+        Bird b = new Bird(random.nextInt(width), random.nextInt(height), birdRadius,i);
             birds.add(b);
         }
-
-        Predator p = new Predator(random.nextInt(width), random.nextInt(height), birdRadius * 2);
-        Predator p2 = new Predator(random.nextInt(width), random.nextInt(height), birdRadius * 2);
+        Predator p = new Predator(random.nextInt(width), random.nextInt(height), birdRadius * 2,1);
+        Predator p2 = new Predator(random.nextInt(width), random.nextInt(height), birdRadius * 2,2);
         predators.add(p);
         predators.add(p2);
 
         Vector<Double> v = new Vector<Double>();
         v.add((double) width / 2);
         v.add((double) height / 2);
-        Food f = new Food(4, v, Color.YELLOW);
+        Food f = new Food(4, v, 2);
         foods.add(f);
 
         Thread t = new Thread(this);
@@ -210,7 +207,7 @@ public class BoidsAnimation extends JComponent implements Runnable {
             }
         }
 
-        Food f = new Food(4, v, Color.YELLOW);
+        Food f = new Food(4, v, 2);
         foods.add(f);
     }
     public void pintarPredadores(Graphics2D g2D){
@@ -293,17 +290,6 @@ public class BoidsAnimation extends JComponent implements Runnable {
 
     }
     
-    
-    public static void generatePredator() {
-        Random random = new Random();
-        int x, y;
-        do {
-            x = random.nextInt(width - 10) + 5;
-            y = random.nextInt(width - 10) + 5;
-        } while (overlap(x, y, 15));
-        Predator predator = new Predator((double) x, (double) y, maxVelocityPredators);
-        predators.add(predator);
-    }
 
     public static void removePredators() {
         predators = new ArrayList<Predator>();

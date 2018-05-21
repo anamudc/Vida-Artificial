@@ -105,7 +105,7 @@ public class ParamSlider  extends JPanel implements ChangeListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				BoidsAnimation.generatePredator();
+//				BoidsAnimation.generatePredator();
 				
 			}
 		});

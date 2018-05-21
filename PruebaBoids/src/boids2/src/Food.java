@@ -26,7 +26,7 @@ public class Food extends AnimationObject {
         this.tamaño = tamaño;
     }
 
-    public Food(int radius, Vector<Double> position, Color color) {
+    public Food(int radius, Vector<Double> position, int color) {
         
         tiempoVida = 500;
         
