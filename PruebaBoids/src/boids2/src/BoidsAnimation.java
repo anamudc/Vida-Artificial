@@ -24,7 +24,7 @@ public class BoidsAnimation extends JComponent implements Runnable {
 
     static int animationSpeed = 7;
 
-    static int numberOfBirds = 50;
+    static int numberOfBirds = 20;
     static int numberOfPredators = 3;
     static int numberOfObstacles = 5;
 
@@ -37,8 +37,8 @@ public class BoidsAnimation extends JComponent implements Runnable {
     static double alignmentParameter = 1.0;
     static double cohesionParameter = 1.0;
 
-    static int maxVelocity = 10;
-    static int maxVelocityPredators = (maxVelocity - 2 >= 0 ? maxVelocity - 2 : 0);
+    static int maxVelocity = 5;
+    static int maxVelocityPredators = (int)2*maxVelocity/* + (maxVelocity - 2 >= 0 ? maxVelocity - 2 : 0)*/;
     static int maxCloseness = 30; //separation
     static int nbAlignment = 200;
     static int nbCohesion = 170;
@@ -46,6 +46,9 @@ public class BoidsAnimation extends JComponent implements Runnable {
     static int width = 1200;
     static int height = 700;
     static int birdRadius = 10;
+
+    static int tamanoComida = 5;
+    static int tamanoComidaBird = 50;
 
     ProyectoArena pr = new ProyectoArena(width, height);
     int ejecuciones = 0;
@@ -56,16 +59,15 @@ public class BoidsAnimation extends JComponent implements Runnable {
         predators = Collections.synchronizedList(new ArrayList<Predator>());
         foods = Collections.synchronizedList(new ArrayList<Food>());
 
-        Transform transformacion = new Transform(); 
         Random random = new Random();
         for (int i = 0; i < numberOfBirds; i++) {
-        Bird b = new Bird(random.nextInt(width), random.nextInt(height), birdRadius,i);
+            Bird b = new Bird(random.nextInt(width), random.nextInt(height), birdRadius, i);
             birds.add(b);
         }
-        Predator p = new Predator(random.nextInt(width), random.nextInt(height), birdRadius * 2,1);
-        Predator p2 = new Predator(random.nextInt(width), random.nextInt(height), birdRadius * 2,2);
-        predators.add(p);
-        predators.add(p2);
+        for (int i = 0; i < numberOfPredators; i++) {
+            Predator p = new Predator(random.nextInt(width), random.nextInt(height), birdRadius * 2, 1);
+            predators.add(p);
+        }
 
         Vector<Double> v = new Vector<Double>();
         v.add((double) width / 2);
@@ -100,9 +102,8 @@ public class BoidsAnimation extends JComponent implements Runnable {
                         b.calculatePosition(this.width, this.height, birds,
                                 seperationParameter, alignmentParameter, cohesionParameter,
                                 maxVelocity, maxCloseness, nbAlignment, nbCohesion,
-                                obstacles, predators,foods,nbFood);
-                        overlapFood((int)b.getX(), (int)b.getY(), b.radius);
-                        b = null;
+                                obstacles, predators, foods, nbFood);
+                        overlapFood(b, (int) b.getX(), (int) b.getY(), b.radius);
                     }
                 }
                 synchronized (predators) {
@@ -121,8 +122,8 @@ public class BoidsAnimation extends JComponent implements Runnable {
                         p.calculatePosition(width, height, birds,
                                 seperationParameter, alignmentParameter, cohesionParameter,
                                 maxVelocityPredators, maxCloseness, nbAlignment, nbCohesion,
-                                obstacles, predators);
-                        overlap((int) p.getX(), (int) p.getY(), p.radius);
+                                obstacles, predators, nbFood);
+                        overlap(p, (int) p.getX(), (int) p.getY(), p.radius);
                     }
                 }
 
@@ -147,8 +148,7 @@ public class BoidsAnimation extends JComponent implements Runnable {
     }
 
     //Sección de pintar dividido por elelmento
-    
-    public void pintarAves(Graphics2D g2D){
+    public void pintarAves(Graphics2D g2D) {
         //sección aves
         synchronized (birds) {
             Iterator<Bird> iterator = birds.iterator();
@@ -159,11 +159,13 @@ public class BoidsAnimation extends JComponent implements Runnable {
                 Integer x = dx.intValue();
                 Integer y = dy.intValue();
                 b.tiempoVida--;
+                b.edad++;
                 g2D.drawImage(b.imagen.getImage(), x, y, this);
             }
         }
     }
-    public void pintarComida(Graphics2D g2D){
+
+    public void pintarComida(Graphics2D g2D) {
         ejecuciones++;
 //        System.out.println("hilo paint " + Thread.currentThread().getId());
         /*Seccion Comida*/
@@ -210,7 +212,8 @@ public class BoidsAnimation extends JComponent implements Runnable {
         Food f = new Food(4, v, 2);
         foods.add(f);
     }
-    public void pintarPredadores(Graphics2D g2D){
+
+    public void pintarPredadores(Graphics2D g2D) {
         //seccion depredadores
         synchronized (predators) {
             Iterator<Predator> iterator = predators.iterator();
@@ -221,11 +224,13 @@ public class BoidsAnimation extends JComponent implements Runnable {
                 Integer x = dx.intValue();
                 Integer y = dy.intValue();
                 p.tiempoVida--;
+                p.edad++;
                 g2D.drawImage(p.imagen.getImage(), x, y, this);
             }
         }
     }
-    public void pintarPlantas(Graphics g){
+
+    public void pintarPlantas(Graphics g) {
         /*Seccion L-System*/
  /*Seccion planta 1*/
         String aux = "";
@@ -289,29 +294,12 @@ public class BoidsAnimation extends JComponent implements Runnable {
         g.setColor(Color.RED);
 
     }
-    
 
     public static void removePredators() {
         predators = new ArrayList<Predator>();
     }
 
-    public static void generateObstacle() {
-        Random random = new Random();
-        int size, x, y;
-        size = random.nextInt(39) + 30;
-        do {
-            x = random.nextInt(width - 50 - 2 * size) + 25 + size;
-            y = random.nextInt(height - 50 - 2 * size) + 25 + size;
-        } while (overlap(x, y, size));
-        Vector<Double> v = new Vector<Double>();
-        v.add((double) x);
-        v.add((double) y);
-        Obstacle o = new Obstacle(size, v);
-        obstacles.add(o);
-
-    }
-
-    private static boolean overlap(int a, int b, int s) {
+    private static boolean overlap(Predator p, int a, int b, int s) {
         double x = (double) a;
         double y = (double) b;
         double size = (double) s;
@@ -322,16 +310,17 @@ public class BoidsAnimation extends JComponent implements Runnable {
                 return true;
             }
         }
-        synchronized (foods) {
+        synchronized (birds) {
             Iterator<Bird> iterator = birds.iterator();
 
             while (iterator.hasNext()) {
                 Bird o = iterator.next();
                 int dist = (int) (Math.sqrt(Math.pow(x - o.getX(), 2) + Math.pow(y - o.getY(), 2)));
-                if (dist >= Math.abs(size - o.radius) && dist <= Math.abs(size + o.radius)) {
+                if (p.tiempoVida < p.hambre && dist >= Math.abs(size - o.radius) && dist <= Math.abs(size + o.radius)) {
                     //eliminar el boid o
 //                    System.out.println("o: " + o.color + " if birds ");
                     iterator.remove();
+                    p.tiempoVida += tamanoComidaBird;
 //                    System.out.println("birds.size: " + birds.size());
                     return true;
                 }
@@ -340,7 +329,7 @@ public class BoidsAnimation extends JComponent implements Runnable {
         return false;
     }
 
-    private static boolean overlapFood(int a, int b, int s) {
+    private static boolean overlapFood(Bird bird, int a, int b, int s) {
         double x = (double) a;
         double y = (double) b;
         double size = (double) 20;
@@ -349,7 +338,7 @@ public class BoidsAnimation extends JComponent implements Runnable {
             Iterator<Food> iterator = foods.iterator();
             while (iterator.hasNext()) {
                 Food f = iterator.next();
-                
+
 //                System.out.println("fx: " + f.getX() + " fy:"+f.getY());
                 int dist = (int) (Math.sqrt(Math.pow(x - f.getX(), 2) + Math.pow(y - f.getY(), 2)));
                 double condicion1 = Math.abs(size - f.radius);
@@ -358,6 +347,7 @@ public class BoidsAnimation extends JComponent implements Runnable {
                 if (dist <= condicion1) {
                     //eliminar la comida
                     iterator.remove();
+                    bird.tiempoVida += tamanoComida;
 //                    System.out.println("if overlaf foods.size: " + foods.size());
                     return true;
                 }

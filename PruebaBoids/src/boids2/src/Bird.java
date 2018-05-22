@@ -17,10 +17,11 @@ public class Bird extends AnimationObject {
 
     public Bird(int x, int y, int radius, int id) {
         this.id = id;
+        edad = 1;
         name = ruta + "true" + id+".png";
         //codigo
-        tiempoVida = (int) (Math.random() * 800);
-        this.color = (int) (1 + Math.random() * 5);
+        tiempoVida = (int) (Math.random() * 1500);
+        this.color = (int) (1 + Math.random() * 2);
         amplitud = (int) (5 + Math.random() * 10);
         verticesLimit = (int) (2 + Math.random() * 4);
         iterTuringMorph = (int) (2000 + Math.random() * 3000);
@@ -45,17 +46,20 @@ public class Bird extends AnimationObject {
         Vector<Double> c = cohesion(neighbours, kNeighboursCoh);
         Vector<Double> p = avoidPredators(predators);
         Vector<Double> f = preferirComida(listaComida, kComida);
+        Vector<Double> r = preferirApariencia(neighbours, kComida);
 
         s = multiply(s, sepParam);
         a = multiply(a, alParam);
         c = multiply(c, cohParam);
-        p = multiply(p, 1);
-        f = multiply(f, 7.0);
+        p = multiply(p, 7.0);
+        f = multiply(f, 5.0);
+        r = multiply(r, 7);
 
         this.velocity = add(this.velocity, s, a, c);
         this.velocity = add(this.velocity, p);
 
         this.velocity = add(this.velocity, f);
+        this.velocity = add(this.velocity, r);
 
         Vector<Double> o = avoidObstacles(obstacles);
         if (obstacle) {
@@ -97,6 +101,30 @@ public class Bird extends AnimationObject {
                     double d = distance(b.position, this.position);
                     if (d < kNeighboursCoh && d > 0) {
                         a = add(a, b.position);
+                        i++;
+                    }
+                }
+            }
+        }
+        if (i > 0) {
+            a = divide(a, i);
+            a = divide(sub(a, this.position), 100.0);
+        }
+        return a;
+    }
+    
+    private Vector<Double> preferirApariencia(List<Bird> neighbours, int kNeighboursCoh) {
+
+        Vector<Double> a = init();
+        int i = 0;
+        synchronized (neighbours) {
+            Iterator<Bird> iterator = neighbours.iterator();
+            while (iterator.hasNext()) {
+                Bird b = iterator.next();
+                if (!b.equals(this)) {
+                    double d = distance(b.position, this.position);
+                    if(b.edad>=initEdadRepro && b.edad<finEdadRepro && b.color==this.color){
+                         a = add(a, b.position);
                         i++;
                     }
                 }

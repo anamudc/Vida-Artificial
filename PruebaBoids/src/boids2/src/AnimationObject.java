@@ -20,6 +20,9 @@ public abstract class AnimationObject {
     
     int tiempoVida = 100;
     
+    int edad;
+    int initEdadRepro;
+    int finEdadRepro;
 
     static final int X = 0;
     static final int Y = 1;
