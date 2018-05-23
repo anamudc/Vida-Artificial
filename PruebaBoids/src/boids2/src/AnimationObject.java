@@ -23,6 +23,16 @@ public abstract class AnimationObject {
     int edad;
     int initEdadRepro;
     int finEdadRepro;
+    int radioReprod;
+    boolean otroHijo = false; //pueden tener otro hijo?
+    
+    int amplitud;
+    int verticesLimit;
+    int iterTuringMorph;
+    int id;
+    int hambre;
+    boolean isPadre = false;
+    int vidaInicial;
 
     static final int X = 0;
     static final int Y = 1;

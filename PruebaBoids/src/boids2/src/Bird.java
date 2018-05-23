@@ -10,21 +10,45 @@ public class Bird extends AnimationObject {
     String ruta = "imgs/";
     File imageFile;
 
-    int amplitud;
-    int verticesLimit;
-    int iterTuringMorph;
-    int id;
-
     public Bird(int x, int y, int radius, int id) {
         this.id = id;
         edad = 1;
-        name = ruta + "true" + id+".png";
+        tiempoVida = (int) (Math.random() * 200);
+        vidaInicial = tiempoVida;
+        radioReprod = 40;//temporal 
+        initEdadRepro = (int) (vidaInicial / 3);
+        finEdadRepro = (int) (vidaInicial - vidaInicial / 3);
+        hambre = tiempoVida / 2;
+        name = ruta + "true" + id + ".png";
         //codigo
         tiempoVida = (int) (Math.random() * 1500);
-        this.color = (int) (1 + Math.random() * 2);
+        this.color = (int) (1 + Math.random() * 5);
         amplitud = (int) (5 + Math.random() * 10);
         verticesLimit = (int) (2 + Math.random() * 4);
         iterTuringMorph = (int) (2000 + Math.random() * 3000);
+
+        Transform transformacion = new Transform();
+        imagen = transformacion.cambioPiel("raton.png", "turingmorph3.png", "transparente.png", verticesLimit, amplitud, iterTuringMorph, this.color, true, this.id);
+        this.radius = radius;
+        velocity = init();
+        position = init(x, y);
+        obstacle = false;
+    }
+
+    Bird(int x, int y, int velocityB, int id, int tVida, int color, int ampli, int vertL, int iterTuring) {
+        this.id = id;
+        edad = 1;
+        radioReprod = 15;//temporal 
+        vidaInicial = tVida;
+        tiempoVida = vidaInicial;
+        initEdadRepro = (int) (vidaInicial / 3);
+        finEdadRepro = (int) (vidaInicial - vidaInicial / 3);
+
+        //codigo
+        this.color = (int) (color + (Math.random() + 0.5) % 5);
+        amplitud = ampli;
+        verticesLimit = vertL;
+        iterTuringMorph = iterTuring;
 
         Transform transformacion = new Transform();
         imagen = transformacion.cambioPiel("raton.png", "turingmorph3.png", "transparente.png", verticesLimit, amplitud, iterTuringMorph, this.color, true, this.id);
@@ -55,12 +79,16 @@ public class Bird extends AnimationObject {
         f = multiply(f, 5.0);
         r = multiply(r, 7);
 
+        if (this.hambre > tiempoVida) {
+            this.velocity = add(this.velocity, f);
+        }
+
         this.velocity = add(this.velocity, s, a, c);
         this.velocity = add(this.velocity, p);
 
-        this.velocity = add(this.velocity, f);
-        this.velocity = add(this.velocity, r);
-
+        if (!isPadre) {
+            this.velocity = add(this.velocity, r);
+        }
         Vector<Double> o = avoidObstacles(obstacles);
         if (obstacle) {
             o = multiply(o, 5);
@@ -112,7 +140,7 @@ public class Bird extends AnimationObject {
         }
         return a;
     }
-    
+
     private Vector<Double> preferirApariencia(List<Bird> neighbours, int kNeighboursCoh) {
 
         Vector<Double> a = init();
@@ -123,8 +151,8 @@ public class Bird extends AnimationObject {
                 Bird b = iterator.next();
                 if (!b.equals(this)) {
                     double d = distance(b.position, this.position);
-                    if(b.edad>=initEdadRepro && b.edad<finEdadRepro && b.color==this.color){
-                         a = add(a, b.position);
+                    if (d < kNeighboursCoh && d > 0 && b.color == this.color && !isPadre && !b.isPadre) {
+                        a = add(a, b.position);
                         i++;
                     }
                 }

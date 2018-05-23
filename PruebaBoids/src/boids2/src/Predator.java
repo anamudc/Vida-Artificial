@@ -9,37 +9,64 @@ public class Predator extends AnimationObject {
 
     String ruta = "imgs/";
     File imageFile;
-    
-    int amplitud;
-    int verticesLimit;
-    int iterTuringMorph;
-    int id;
-    int hambre;
 
     public Predator(double x, double y, int maxVelocity, int id) {
         this.id = id;
         edad = 1;
-        
-        hambre = 300;
+        tiempoVida = (int) (Math.random() * 700);
+        vidaInicial = tiempoVida;
+        radioReprod = 40;//temporal 
+        initEdadRepro = (int) (vidaInicial / 4);
+        finEdadRepro = (int) (vidaInicial - vidaInicial / 4);
+        hambre = tiempoVida-(tiempoVida/7);
         //codigo
-        
-        tiempoVida = (int) (Math.random() * 800);        
-        this.color = (int)(1+Math.random()*5);
-        amplitud = (int)(5+Math.random()*10);
-        verticesLimit = (int)(2+Math.random()*4);
-        iterTuringMorph = (int)(2000+Math.random()*3000);
-        
-        Transform transformacion = new Transform(); 
-        imagen = transformacion.cambioPiel("gato.png","turingmorph3.png","transparente.png",verticesLimit,amplitud,iterTuringMorph,this.color,false,this.id);
-            
-        name = ruta+"true"+id;
+
+        this.color = 5;//(int)(1+Math.random()*5);
+        amplitud = (int) (5 + Math.random() * 10);
+        verticesLimit = (int) (2 + Math.random() * 4);
+        iterTuringMorph = (int) (2000 + Math.random() * 3000);
+
+        Transform transformacion = new Transform();
+        imagen = transformacion.cambioPiel("gato.png", "turingmorph3.png", "transparente.png", verticesLimit, amplitud, iterTuringMorph, this.color, false, this.id);
+
+        name = ruta + "true" + id;
         radius = 15;
         position = init(x, y);
         velocity = randomVelocity(maxVelocity);
-        
+
     }
 
-    
+    public Predator(double x, double y, int velocityB, int id, int tVida, int color, int ampli, int vertL, int iterTuring) {
+        this.id = id;
+        edad = 1;
+        radioReprod = 15;//temporal 
+        vidaInicial = tVida;
+        tiempoVida = vidaInicial;
+        initEdadRepro = (int) (vidaInicial / 3);
+        finEdadRepro = (int) (vidaInicial - vidaInicial / 3);
+        //codigo
+
+//        isPadre = true;
+        
+        this.color = (int) (color + (Math.random() + 0.5)%5);
+        amplitud = ampli;
+        if(vertL>0){
+        verticesLimit = vertL;
+        }else{
+            verticesLimit = (int) (vertL+ (Math.random()+(0.5)+1));
+        }
+        iterTuringMorph = iterTuring;
+
+        Transform transformacion = new Transform();
+        imagen = transformacion.cambioPiel("gato.png", "turingmorph3.png", "transparente.png", verticesLimit, amplitud, iterTuringMorph, this.color, false, this.id);
+
+        name = ruta + "true" + id;
+        radius = 15;
+        position = init(x, y);
+        velocity = randomVelocity(velocityB);
+
+    }
+
     public void calculatePosition(int width, int height, List<Bird> neighbours, double sepParam, double alParam,
             double cohParam, int maxVelocity, int maxCloseness, int kNeighboursAl, int kNeighboursCoh,
             List<Obstacle> obstacles, List<Predator> predators, int nbFood) {
@@ -48,15 +75,22 @@ public class Predator extends AnimationObject {
         Vector<Double> s = separatePredators(predators, maxCloseness + 50);
         Vector<Double> a = align(neighbours, kNeighboursAl + 150); //bigger range for chasing birds
         Vector<Double> c = cohesion(neighbours, kNeighboursCoh + 150); //the same as above
-        Vector<Double> r = preferirApariencia(predators, nbFood); 
+        Vector<Double> r = preferirApariencia(predators, kNeighboursCoh + 150);//nbFood+150 
 
         s = multiply(s, 1.0);
         a = multiply(a, 3.0);
         c = multiply(c, 7.0);
         r = multiply(r, 7.0);
 
-        this.velocity = add(this.velocity, s, a, c);
-        velocity = add(this.velocity, r);
+        this.velocity = add(this.velocity, s);
+
+        if (!this.isPadre) {
+            velocity = add(this.velocity, r);
+        }
+        if (this.hambre > tiempoVida) {
+            this.velocity = add(this.velocity, a);
+            this.velocity = add(this.velocity, c);
+        }
         Vector<Double> o = avoidObstacles(obstacles);
         if (obstacle) {
             o = multiply(o, 0.5);
@@ -68,8 +102,8 @@ public class Predator extends AnimationObject {
         obstacle = false;
 
     }
-    
-     private Vector<Double> preferirApariencia(List<Predator> neighbours, int kNeighboursCoh) {
+
+    private Vector<Double> preferirApariencia(List<Predator> neighbours, int kNeighboursCoh) {
 
         Vector<Double> a = init();
         int i = 0;
@@ -79,8 +113,8 @@ public class Predator extends AnimationObject {
                 Predator b = iterator.next();
                 if (!b.equals(this)) {
                     double d = distance(b.position, this.position);
-                    if(d < kNeighboursCoh && d > 0 && b.edad>=initEdadRepro && b.edad<finEdadRepro && b.color==this.color){
-                         a = add(a, b.position);
+                    if (d < kNeighboursCoh && d > 0 && b.color == this.color && !isPadre && !b.isPadre) { //
+                        a = add(a, b.position);
                         i++;
                     }
                 }

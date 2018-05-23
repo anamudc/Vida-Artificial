@@ -6,11 +6,13 @@
 package boids2.src;
 
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.HeadlessException;
 import java.awt.Image;
+import java.awt.RenderingHints;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
@@ -43,6 +45,22 @@ public class Transform {
     boolean parametro5; //tipo de animal (gato o ratón)
     int parametro6; //numero de animal a crear (numeracion de animales)
 
+    
+    public void scaleImage(ImageIcon ii) {
+        try {
+//            ii = new ImageIcon("/tmp/apple.jpg");
+            BufferedImage bi = new BufferedImage(50, 50, BufferedImage.TYPE_INT_RGB);
+            Graphics2D g2d = (Graphics2D) bi.createGraphics();
+            g2d.addRenderingHints(new RenderingHints(RenderingHints.KEY_RENDERING,
+                    RenderingHints.VALUE_RENDER_QUALITY));
+            boolean b = g2d.drawImage(ii.getImage(), 0, 0, 50, 50, null);
+            System.out.println(b);
+            ImageIO.write(bi, "jpg", new File("imgs/apple50.jpg"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
     public ImageIcon cambioPiel(String imgAnimal, String imgPiel, String imgBase,
             int pVertices, int pAmplitud, int iteracionesMorph, int colorMorph, boolean tipoRaton, int numeroAnimal) {
         String ruta = "imgs/";
@@ -124,6 +142,7 @@ public class Transform {
             ImageIO.write(bufferBase, "png", new File(ruta + parametro5 + parametro6 + ".png"));
             System.out.println("done");
             
+            scaleImage(new ImageIcon(bufferBase));
             
         } catch (IOException ex) {
             Logger.getLogger(Piel.class.getName()).log(Level.SEVERE, null, ex);
@@ -230,4 +249,8 @@ public class Transform {
         return false;
     }
 
+    public static void main(String[] args) {
+        Transform t = new Transform();        
+    }
+    
 }
