@@ -34,7 +34,7 @@ public class Food extends AnimationObject {
         this.radius = radius;
         this.position = position;
         try {
-            name = "pasto.png";
+            name = "queso.png";
             imagen = new ImageIcon("" + name);
             File imageFile = new File("" + name);
             imagen.setImage(ImageIO.read(getClass().getResourceAsStream(imageFile.toString())));

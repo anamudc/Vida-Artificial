@@ -51,6 +51,7 @@ public class BoidsAnimation extends JComponent implements Runnable {
     static int tamanoComidaBird = 50;
 
     int ejecuciones = 0;
+    boolean estacionActiva = false;
     static int idBirds = 1;
     static int idPredator = 1;
     static ArrayList<Integer[]> hijosGato = new ArrayList<Integer[]>();
@@ -202,10 +203,12 @@ public class BoidsAnimation extends JComponent implements Runnable {
         if (ejecuciones < 500) {
             v.add((double) width * Math.random() / 2);
             v.add((double) Math.random() * height / 2);
+            estacionActiva = true;
         }
         if (ejecuciones >= 500 && ejecuciones <= 1000) {
             v.add((double) (width * Math.random() / 2) + (width / 2));
             v.add((double) (Math.random() * height / 2) + (height / 2));
+            estacionActiva = false;
             if (ejecuciones == 1000) {
                 ejecuciones = 0;
             }
@@ -238,31 +241,31 @@ public class BoidsAnimation extends JComponent implements Runnable {
  /*Seccion planta 1*/
         String aux = "";
         String axioma = "F";
-        int iteraciones = 4;
+        int iteraciones = 3;
         DOLSystem sys = new DOLSystem();
         String res = axioma;
-
         for (int j = 0; j < iteraciones; j++) {
             res = sys.GenerarRama(res);
         }
-//        System.out.println(res);
         String axiomaTurtle = res;
-
         Planta1 ti = new Planta1();
         ti.n = 500;
         ti.m = 500;
         ti.llenarMatriz();
         ti.distacia = 5;
         ti.delta = 27;
-        Turtle turtle = new Turtle((int) width / 2, (int) height / 2, 270);
+        Turtle turtle = new Turtle((int) (width*7/8), (int) (height*7/8), 270);
         for (int i = 0; i < axiomaTurtle.length(); i++) {
             aux = axiomaTurtle.substring(i, i + 1);
             int x = turtle.xPosition;
             int y = turtle.yPosition;
             turtle = ti.siguientePaso(aux, turtle, ti.distacia, ti.delta);
-            g.setColor(Color.ORANGE);
+            if(!estacionActiva){
+                g.setColor(Color.GREEN);
+            }else{
+                g.setColor(Color.ORANGE);
+            }
             g.drawLine(x, y, turtle.xPosition, turtle.yPosition);
-
             ti.distacia = (int) (5 + (Math.random() * 2));
             ti.delta = (int) (27 + (Math.random() * 4));
         }
@@ -270,31 +273,95 @@ public class BoidsAnimation extends JComponent implements Runnable {
         /*Seccion planta 2*/
         String aux2 = "";
         String axioma2 = "X";
-        int iteraciones2 = 6;
+        int iteraciones2 = 5;
         DOLSystem sys2 = new DOLSystem();
         String res2 = axioma2;
         for (int j = 0; j < iteraciones2; j++) {
             res2 = sys2.GenerarRama3(res2);
         }
-//        System.out.println(res2);
         String axiomaTurtle2 = res2;
         Planta1 ti2 = new Planta1();
         ti2.n = 500;
         ti2.m = 500;
         ti2.distacia = 2;
         ti2.delta = 26;
-        Turtle turtle2 = new Turtle((int) width / 4, (int) height / 2, 270);
+        Turtle turtle2 = new Turtle((int) (width*5/8), (int) (height*5/8), 270);
         for (int i = 0; i < axiomaTurtle2.length(); i++) {
             aux2 = axiomaTurtle2.substring(i, i + 1);
             int x = turtle2.xPosition;
             int y = turtle2.yPosition;
             turtle2 = ti.siguientePaso(aux2, turtle2, ti2.distacia, ti2.delta);
-            g.setColor(Color.RED);
+            if(!estacionActiva){
+                g.setColor(Color.GREEN);
+            }else{
+                g.setColor(Color.ORANGE);
+            }
             g.drawLine(x, y, turtle2.xPosition, turtle2.yPosition);
             ti2.distacia = (int) (2 + (Math.random() * 2));
             ti2.delta = (int) (26 + (Math.random() * 4));
         }
-        g.setColor(Color.RED);
+         /*Seccion planta 3*/
+        String aux3 = "";
+        String axioma3 = "F";
+        int iteraciones3 = 4;
+        DOLSystem sys3 = new DOLSystem();
+        String res3 = axioma3;
+        for (int j = 0; j < iteraciones3; j++) {
+            res3 = sys3.GenerarRama(res);
+        }
+        String axiomaTurtle3 = res3;
+        Planta1 ti3 = new Planta1();
+        ti3.n = 500;
+        ti3.m = 500;
+        ti3.llenarMatriz();
+        ti3.distacia = 5;
+        ti3.delta = 27;
+        Turtle turtle3 = new Turtle((int) (width*3/8), (int) (height*3/8), 270);
+        for (int i = 0; i < axiomaTurtle3.length(); i++) {
+            aux3 = axiomaTurtle3.substring(i, i + 1);
+            int x = turtle3.xPosition;
+            int y = turtle3.yPosition;
+            turtle3 = ti3.siguientePaso(aux3, turtle3, ti3.distacia, ti3.delta);
+            if(estacionActiva){
+                g.setColor(Color.GREEN);
+            }else{
+                g.setColor(Color.ORANGE);
+            }
+            g.drawLine(x, y, turtle3.xPosition, turtle3.yPosition);
+            ti3.distacia = (int) (5 + (Math.random() * 2));
+            ti3.delta = (int) (27 + (Math.random() * 4));
+        }
+
+        /*Seccion planta 4*/
+        String aux4 = "";
+        String axioma4 = "X";
+        int iteraciones4 = 4;
+        DOLSystem sys4 = new DOLSystem();
+        String res4 = axioma4;
+        for (int j = 0; j < iteraciones4; j++) {
+            res4 = sys4.GenerarRama3(res4);
+        }
+        String axiomaTurtle4 = res4;
+        Planta1 ti4 = new Planta1();
+        ti4.n = 500;
+        ti4.m = 500;
+        ti4.distacia = 2;
+        ti4.delta = 26;
+        Turtle turtle4 = new Turtle((int) (width*1/8), (int) (height*1/8), 270);
+        for (int i = 0; i < axiomaTurtle4.length(); i++) {
+            aux4 = axiomaTurtle4.substring(i, i + 1);
+            int x = turtle4.xPosition;
+            int y = turtle4.yPosition;
+            turtle4 = ti.siguientePaso(aux4, turtle4, ti4.distacia, ti4.delta);
+            if(estacionActiva){
+                g.setColor(Color.GREEN);
+            }else{
+                g.setColor(Color.ORANGE);
+            }
+            g.drawLine(x, y, turtle4.xPosition, turtle4.yPosition);
+            ti4.distacia = (int) (2 + (Math.random() * 2));
+            ti4.delta = (int) (26 + (Math.random() * 4));
+        }
 
     }
 

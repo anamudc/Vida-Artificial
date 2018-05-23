@@ -79,9 +79,10 @@ public class Bird extends AnimationObject {
         f = multiply(f, 5.0);
         r = multiply(r, 7);
 
-        if (this.hambre > tiempoVida) {
-            this.velocity = add(this.velocity, f);
-        }
+//        if (this.hambre > tiempoVida) {
+//            this.velocity = add(this.velocity, f);
+//        }
+        this.velocity = add(this.velocity, f);
 
         this.velocity = add(this.velocity, s, a, c);
         this.velocity = add(this.velocity, p);
