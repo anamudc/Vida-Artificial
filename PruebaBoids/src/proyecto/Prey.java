@@ -1,5 +1,6 @@
 package proyecto;
 
+import pieles.Transform;
 import java.io.File;
 import java.util.Iterator;
 import java.util.List;
@@ -60,7 +61,7 @@ public class Prey extends AnimationObject {
 
     public void calculatePosition(int width, int height, List<Prey> neighbours,
             double sepParam, double alParam, double cohParam, int maxVelocity, int maxCloseness,
-            int kNeighboursAl, int kNeighboursCoh, List<Obstacle> obstacles,
+            int kNeighboursAl, int kNeighboursCoh, 
             List<Predator> predators, List<Food> listaComida, int kComida) {
 
         this.width = width;
@@ -90,11 +91,7 @@ public class Prey extends AnimationObject {
         if (!isPadre) {
             this.velocity = add(this.velocity, r);
         }
-        Vector<Double> o = avoidObstacles(obstacles);
-        if (obstacle) {
-            o = multiply(o, 5);
-            velocity = add(this.velocity, o);
-        }
+        
         limitSpeed(maxVelocity);
         this.position = add(this.position, this.velocity);
         limitBorders(width, height);

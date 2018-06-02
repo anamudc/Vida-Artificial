@@ -3,6 +3,7 @@ package proyecto;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Vector;
 import java.util.logging.Level;
@@ -28,7 +29,7 @@ public class Food extends AnimationObject {
 
     public Food(int radius, Vector<Double> position, int color) {
         
-        tiempoVida = 500;
+        tiempoVida = 300;
         
         this.color = color;
         this.radius = radius;
@@ -37,7 +38,8 @@ public class Food extends AnimationObject {
             name = "queso.png";
             imagen = new ImageIcon("" + name);
             File imageFile = new File("" + name);
-            imagen.setImage(ImageIO.read(getClass().getResourceAsStream(imageFile.toString())));
+            InputStream data = getClass().getResourceAsStream(imageFile.toString());
+            imagen.setImage(ImageIO.read(data));
         } catch (IOException ex) {
             Logger.getLogger(Food.class.getName()).log(Level.SEVERE, null, ex);
         }

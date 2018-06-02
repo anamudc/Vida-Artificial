@@ -146,73 +146,6 @@ public abstract class AnimationObject {
             position = add(position, velocity);
         }
     }
-
-    Vector<Double> avoidObstacles(List<Obstacle> obstacles) {
-        Vector<Double> v = init();
-        int i = 0;
-        Vector<Double> newPosition = add(position, velocity);
-        for (Obstacle o : obstacles) {
-            double dist = distance(position, o.position);
-            double r = (double) (o.radius + radius);
-            if (dist <= r) {
-                obstacle = true;
-                v = add(v, sub(position, o.position));
-            } else if (dist <= 3 * r && dist > r) {
-                double a = (Math.pow(getX() - o.getX(), 2) + Math.pow(getY() - o.getY(), 2)) / Math.pow(getX() - o.getX(), 2);
-                double b1 = -o.getY() - getY();
-                double b2 = -(2 * Math.pow(getY() - o.getY(), 2)) / Math.pow(getX() - o.getX(), 2);
-                double b3 = (2 * r * r * (getY() - o.getY())) / Math.pow(getX() - o.getX(), 2);
-                double b = b1 + b2 * o.getY() - b3 + (getY() - o.getY());
-                double c1 = Math.pow(r, 4) / Math.pow(getX() - o.getX(), 2);
-                double c2 = ((2 * r * r * (getY() - o.getY()) / Math.pow(getX() - o.getX(), 2))) * o.getY();
-                double c3 = (Math.pow(getY() - o.getY(), 2) / Math.pow(getX() - o.getX(), 2)) * Math.pow(o.getY(), 2);
-                double c = o.getY() * getY() - r * r - (getY() - o.getY()) * o.getY() + c1 + c2 + c3;
-                Vector<Double> p = new Vector<Double>();
-                Vector<Double> p1 = new Vector<Double>();
-                Vector<Double> p2 = new Vector<Double>();
-                double y1 = (-b - Math.sqrt(b * b - 4 * a * c)) / (2 * a);
-                double y2 = (-b + Math.sqrt(b * b - 4 * a * c)) / (2 * a);
-                double x1 = (r * r / (getX() - o.getX())) + o.getX() + ((getY() - o.getY()) / (getX() - o.getX())) * (o.getY() - y1);
-                double x2 = (r * r / (getX() - o.getX())) + o.getX() + ((getY() - o.getY()) / (getX() - o.getX())) * (o.getY() - y2);
-                p1.add(x1);
-                p1.add(y1);
-                p2.add(x2);
-                p2.add(x2);
-                double d1 = distance(newPosition, p1);
-                double d2 = distance(newPosition, p2);
-
-                if ((Double.isNaN(d1) && Double.isNaN(d2)) || Math.abs(d1 - d2) < BoidsAnimation.maxVelocity * 2) { //avoid being stuck
-                    obstacle = true;
-                    v = add(v, sub(position, o.position));
-                    i++;
-                    break;
-                }
-
-                if (d1 < d2) {
-                    p = p1;
-                } else {
-                    p = p2;
-                }
-
-                Vector<Double> v1 = sub(o.position, position);
-                Vector<Double> v2 = sub(p, position);
-                Vector<Double> v3 = sub(newPosition, position);
-                double cos1 = dotProduct(v1, v2) / (distance(v1, init()) * distance(v2, init()));
-                double cos2 = dotProduct(v1, v3) / (distance(v1, init()) * distance(v3, init()));
-                if (cos1 <= cos2) {
-                    obstacle = true;
-                    v = add(v, v2);
-                    i++;
-                }
-            }
-        }
-        if (i > 0) {
-            v = divide(v, (double) i);
-            v = multiply(v, 30.0); //force to avoid obstacle
-        }
-        return v;
-    }
-    
     Vector<Double> add(Vector<Double> a, Vector<Double> b) {
         Vector<Double> c = new Vector<Double>();
         c.add(a.get(0) + b.get(0));
@@ -278,7 +211,7 @@ public abstract class AnimationObject {
 
     public void calculatePosition(int width, int height, List<Prey> neighbours, double sepParam, double alParam,
             double cohParam, int maxVelocity, int maxCloseness, int kNeighboursAl, int kNeighboursCoh,
-            List<Obstacle> obstacles, List<Predator> predators) {
+            List<Predator> predators) {
         // TODO Auto-generated method stub
 
     }

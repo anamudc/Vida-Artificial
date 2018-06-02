@@ -3,13 +3,13 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/angie/NetBeansProjects/Vida-Artificial/PruebaBoids/src/boids2/src/Food.java</file>
-            <file>file:/home/angie/NetBeansProjects/Vida-Artificial/PruebaBoids/src/boids2/src/Bird.java</file>
-            <file>file:/home/angie/NetBeansProjects/Vida-Artificial/PruebaBoids/src/boids2/src/Predator.java</file>
-            <file>file:/home/angie/NetBeansProjects/Vida-Artificial/PruebaBoids/src/boids2/src/Transform.java</file>
-            <file>file:/home/angie/NetBeansProjects/Vida-Artificial/PruebaBoids/src/boids2/src/Planta1.java</file>
-            <file>file:/home/angie/NetBeansProjects/Vida-Artificial/PruebaBoids/src/boids2/src/AnimationObject.java</file>
-            <file>file:/home/angie/NetBeansProjects/Vida-Artificial/PruebaBoids/src/boids2/src/BoidsAnimation.java</file>
+            <file>file:/home/angie/NetBeansProjects/Vida-Artificial/PruebaBoids/src/proyecto/AnimationObject.java</file>
+            <file>file:/home/angie/NetBeansProjects/Vida-Artificial/PruebaBoids/src/proyecto/Predator.java</file>
+            <file>file:/home/angie/NetBeansProjects/Vida-Artificial/PruebaBoids/src/lSystem/DOLSystem.java</file>
+            <file>file:/home/angie/NetBeansProjects/Vida-Artificial/PruebaBoids/src/proyecto/BoidsAnimation.java</file>
+            <file>file:/home/angie/NetBeansProjects/Vida-Artificial/PruebaBoids/src/proyecto/Food.java</file>
+            <file>file:/home/angie/NetBeansProjects/Vida-Artificial/PruebaBoids/src/proyecto/Prey.java</file>
+            <file>file:/home/angie/NetBeansProjects/Vida-Artificial/PruebaBoids/src/lSystem/Turtle.java</file>
         </group>
     </open-files>
 </project-private>

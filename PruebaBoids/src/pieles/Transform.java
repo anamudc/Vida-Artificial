@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package proyecto;
+package pieles;
 
 import java.awt.Graphics;
 import java.awt.GraphicsConfiguration;
@@ -21,7 +21,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
-import pieles.Piel;
 import turingMorphA.Solver;
 
 /**
@@ -119,7 +118,7 @@ public class Transform {
                 }
             }
         } catch (IOException ex) {
-            Logger.getLogger(Piel.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Transform.class.getName()).log(Level.SEVERE, null, ex);
         }
         return new ImageIcon(bufferBase);
     }
@@ -218,7 +217,7 @@ public class Transform {
             ColorModel cm = pg.getColorModel();
             return cm.hasAlpha();
         } catch (InterruptedException ex) {
-            Logger.getLogger(Piel.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Transform.class.getName()).log(Level.SEVERE, null, ex);
         }
         return false;
     }
